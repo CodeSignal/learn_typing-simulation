@@ -18,28 +18,14 @@ A base HTML template that includes:
 - Help modal integration
 - Proper CSS and JavaScript loading
 
-### 3. `io.js`
-Generic data persistence functions:
-- Load/save from local files
-- localStorage operations with configurable keys
-- Server save operations with configurable endpoints
-- Data validation and error handling
-
-### 4. `auto-save.js`
-Automatic data persistence system:
-- Immediate localStorage saves
-- Periodic server synchronization
-- Configurable intervals and retry logic
-- Status reporting and error handling
-
-### 5. `help-modal.js`
+### 3. `help-modal.js`
 A dependency-free JavaScript module for the help modal system:
 - Consistent modal behavior across all apps
 - Keyboard navigation (ESC to close)
 - Focus management
 - Custom event system
 
-### 6. `help-content-template.html`
+### 4. `help-content-template.html`
 A template for creating consistent help content:
 - Table of contents navigation
 - Standardized section structure
@@ -179,56 +165,6 @@ You can override these variables in your app-specific CSS:
 }
 ```
 
-### Auto-Save API
-
-The `AutoSave` class provides several methods:
-
-```javascript
-// Initialize
-const autoSave = AutoSave.init({
-  data: appData,
-  filename: 'solution.json',
-  localStorageKey: 'myapp:data',
-  saveInterval: 1000,
-  onStatusChange: setStatus,
-  onDataChange: (data) => { /* custom logic */ },
-  onError: (message, error) => { /* error handling */ }
-});
-
-// Mark data as changed
-autoSave.markDirty();
-
-// Manual save
-autoSave.saveNow();
-
-// Load from localStorage
-const data = autoSave.loadFromLocalStorage();
-
-// Destroy the auto-save system
-autoSave.destroy();
-```
-
-### IO API
-
-The `IO` object provides generic data persistence functions:
-
-```javascript
-// Load from file
-const data = await IO.loadFromFile('data.json');
-
-// Save to localStorage
-IO.saveToLocalStorage(data, 'myapp:data');
-
-// Load from localStorage
-const data = IO.loadFromLocalStorage('myapp:data');
-
-// Save to server
-await IO.saveToServer(data, 'solution.json', '/api/save');
-
-// Validate data
-IO.validateData(data);
-```
-
 ### Help Modal API
 
 The `HelpModal` class provides several methods:
@@ -248,29 +184,6 @@ modal.updateContent(newHelpContent);
 modal.destroy();
 ```
 
-### Events
-
-The help modal dispatches custom events:
-
-```javascript
-document.getElementById('btn-help').addEventListener('helpModal:open', (e) => {
-  console.log('Help modal opened');
-});
-
-document.getElementById('btn-help').addEventListener('helpModal:close', (e) => {
-  console.log('Help modal closed');
-});
-```
-
-## Design Principles
-
-1. **Consistency**: All applications share the same visual language
-2. **Accessibility**: Proper focus management, keyboard navigation, and ARIA labels
-3. **Responsiveness**: Works on desktop and mobile devices
-4. **Theme Support**: Automatic light/dark mode detection
-5. **Modularity**: Components can be used independently
-6. **Zero Dependencies**: No external JavaScript libraries required
-
 ## File Structure
 
 ```
@@ -281,20 +194,3 @@ generalised/
 ├── help-content-template.html # Help content template
 └── README.md               # This file
 ```
-
-## Browser Support
-
-- Modern browsers (Chrome, Firefox, Safari, Edge)
-- ES6+ features (classes, arrow functions, template literals)
-- CSS Grid and Flexbox
-- CSS Custom Properties
-
-## Contributing
-
-When adding new components or modifying existing ones:
-
-1. Maintain backward compatibility
-2. Follow the established naming conventions
-3. Test across different themes and screen sizes
-4. Update this README with any new features
-5. Ensure accessibility standards are met
