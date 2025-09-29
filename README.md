@@ -117,10 +117,10 @@ The server will start on `http://localhost:3000` by default.
 
 The server provides a `POST /message` endpoint that allows you to send real-time messages to connected clients. This can be used to signal changes in the client during events like "Run" or "Submit". When a message is sent, the preview window with the application open will display an alert with the message. 
 
-It uses the `ws` package, so if you want to use it, install `ws`.
+It uses the `ws` package, so if you want to use it, install the packages (but this is optional).
 
 ```
-npm install ws
+npm install
 ```
 
 #### Endpoint: `POST /message`
