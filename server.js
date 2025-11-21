@@ -52,7 +52,7 @@ function getMimeType(filePath) {
   return mimeTypes[ext] || 'text/plain';
 }
 
-// Serve static file
+// Serve static files
 function serveFile(filePath, res) {
   fs.readFile(filePath, (err, data) => {
     if (err) {
