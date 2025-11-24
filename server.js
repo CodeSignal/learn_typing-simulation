@@ -121,7 +121,7 @@ function handlePostRequest(req, res, parsedUrl) {
 // Create HTTP server
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
-  let pathname = parsedUrl.pathname;
+  let pathName = parsedUrl.pathname === '/' ? '/index.html' : parsedUrl.pathname;
 
   // Handle POST requests
   if (req.method === 'POST') {
@@ -131,17 +131,16 @@ const server = http.createServer((req, res) => {
 
   // In production mode, serve static files from dist directory
   if (isProduction) {
-    // Serve static files from dist directory
-    let filePath = path.join(DIST_DIR, pathname === '/' ? 'index.html' : pathname);
+    // Strip leading slashes so path.join/resolve can't ignore DIST_DIR
+    let filePath = path.join(DIST_DIR, pathName.replace(/^\/+/, ''));
 
     // Security check - prevent directory traversal
-    // Resolve both paths to absolute paths to handle symlinks and relative paths
     const resolvedDistDir = path.resolve(DIST_DIR);
     const resolvedFilePath = path.resolve(filePath);
     const relativePath = path.relative(resolvedDistDir, resolvedFilePath);
 
     // Reject if path tries to traverse outside the base directory
-    if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+    if (relativePath.startsWith('..')) {
       res.writeHead(403, { 'Content-Type': 'text/plain' });
       res.end('Forbidden');
       return;
@@ -151,7 +150,7 @@ const server = http.createServer((req, res) => {
   } else {
     // Development mode - static files are served by Vite
     res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end('Not found (development mode - use Vite dev server `npm run dev`)');
+    res.end('Not found (development mode - use Vite dev server `npm run start:dev`)');
   }
 });
 
