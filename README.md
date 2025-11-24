@@ -1,31 +1,37 @@
-# Bespoke Generalised Components
+# Bespoke Simulation Template
 
-This directory contains reusable components for creating embedded applications that share a consistent design system and user experience.
+This directory contains a template for creating embedded applications that share a consistent design system and user experience.
 
 ## Components
 
-### 1. Design System (Git Submodule)
-The design system is provided via a git submodule at `design-system/` and includes:
-- **Foundations**: Colors, spacing, and typography tokens
-- **Components**: Buttons, boxes, inputs, dropdowns, icons, and tags
+### 1. Design System Integration
+This template uses the CodeSignal Design System located in `client/design-system/`:
+- **Foundations**: Colors, spacing, typography tokens
+- **Components**: Buttons, boxes, inputs, dropdowns, tags
 - Light and dark theme support (automatic)
-- See `design-system/README.md` for full documentation
+- See the [design system repository](https://github.com/CodeSignal/learn_bespoke-design-system) for full documentation
 
-### 2. `client/index.html`
+### 2. `client/bespoke-template.css`
+Template-specific CSS providing:
+- Layout components (header, sidebar, main-layout)
+- Utility classes (row, spacer, status)
+- Temporary components (modals, form elements) - will be replaced when design system adds them
+
+### 3. `client/index.html`
 A base HTML template that includes:
 - Navigation header with app name and help button
 - Main layout structure (sidebar + content area)
 - Help modal integration
 - Proper CSS and JavaScript loading
 
-### 3. `client/help-modal.js`
+### 4. `client/help-modal.js`
 A dependency-free JavaScript module for the help modal system:
 - Consistent modal behavior across all apps
 - Keyboard navigation (ESC to close)
 - Focus management
 - Custom event system
 
-### 4. `client/help-content-template.html`
+### 5. `client/help-content-template.html`
 A template for creating consistent help content:
 - Table of contents navigation
 - Standardized section structure
@@ -50,6 +56,12 @@ A template for creating consistent help content:
    - `<!-- APP_SPECIFIC_CSS -->` - Links to your app-specific CSS files
    - `<!-- APP_SPECIFIC_SCRIPTS -->` - Links to your app-specific JavaScript files
 
+3. **Use Design System Components**
+   The template uses design system components directly. Use these classes:
+   - Buttons: `button button-primary`, `button button-secondary`, `button button-danger`, `button button-text`
+   - Boxes/Cards: `box card` for card containers
+   - Inputs: Add `input` class to input elements: `<input type="text" class="input" />`
+
 4. **Implement your application logic**. You can use Cursor or other agents for it. There is a file called `AGENTS.md` that contains context LLM can use.
 5. **Customise your help content** using the help content template
 
@@ -62,25 +74,6 @@ Use the `help-content-template.html` as a starting point:
 3. **Include images** by placing them in a `help/img/` directory
 4. **Use the provided structure** for consistency across applications
 
-### CSS Customization
-
-The design system uses CSS custom properties for easy theming. You can override design system variables in your app-specific CSS:
-
-```css
-:root {
-  /* Override design system colors */
-  --Colors-Base-Primary-700: #ff6b6b;  /* Custom primary color */
-  --Colors-Base-Neutral-00: #f8f9fa;   /* Custom background */
-
-  /* Override spacing */
-  --UI-Spacing-spacing-m: 20px;
-
-  /* Override typography */
-  --Fonts-Body-Default-md: 16px;
-}
-```
-
-See `design-system/README.md` and individual component READMEs for available variables.
 
 ### Help Modal API
 

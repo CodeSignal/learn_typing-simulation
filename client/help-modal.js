@@ -1,8 +1,11 @@
 /**
  * HelpModal - A reusable, dependency-free help modal system for Bespoke applications
  *
- * This modal system is designed to work with the bespoke.css framework and provides
+ * This modal system is designed to work with the CodeSignal Design System and provides
  * a consistent help experience across all embedded applications.
+ *
+ * Note: Currently uses temporary modal components from bespoke-template.css.
+ * When modal components are added to the design system, this should be updated to use them.
  *
  * Usage:
  * HelpModal.init({
@@ -35,7 +38,8 @@ class HelpModal {
   }
 
   createModal() {
-    // Create modal container using bespoke CSS classes
+    // Create modal container using temporary modal classes from bespoke-template.css
+    // TODO: Update to use design system modal classes when available
     this.modal = document.createElement('div');
     this.modal.className = 'modal';
     this.modal.innerHTML = `
