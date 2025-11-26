@@ -3,6 +3,9 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   root: './client',
   server: {
+    host: '0.0.0.0',
+    hmr: true,
+    allowedHosts: true,
     port: 3000,
     proxy: {
       '/message': {
