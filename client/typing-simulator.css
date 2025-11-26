@@ -3,6 +3,7 @@
 /* Override main-layout grid to use full width (no sidebar in typing simulator) */
 .bespoke .main-layout {
   grid-template-columns: 1fr;
+  overflow: hidden; /* Prevent scrolling */
 }
 
 .bespoke .typing-container {
@@ -12,24 +13,28 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: var(--UI-Spacing-spacing-xl);
+  overflow: hidden; /* Prevent scrolling */
+  min-height: 0; /* Allow flexbox to shrink */
 }
 
 .bespoke .typing-text-container {
-  flex: 1;
+  flex: 1 1 auto;
   position: relative;
-  overflow-y: auto;
+  overflow: hidden; /* Remove scrolling - content must fit */
   padding: var(--UI-Spacing-spacing-mxl);
   background: transparent;
   font-family: var(--body-family);
   font-size: var(--Fonts-Body-Default-xxxl);
   line-height: 140%;
   cursor: text;
-  min-height: 400px;
   max-width: 900px;
   width: 100%;
-  margin: var(--UI-Spacing-spacing-4xl) auto 0;
+  margin: var(--UI-Spacing-spacing-lg) auto 0;
+  min-height: 0; /* Allow flexbox to shrink */
+  display: flex;
+  flex-direction: column;
 }
 
 .bespoke .typing-text {
@@ -38,6 +43,9 @@
   user-select: none;
   text-align: left;
   width: 100%;
+  overflow: hidden; /* Prevent text from causing scroll */
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .bespoke .typing-text .char-pending {
@@ -143,6 +151,9 @@
   text-align: center;
   z-index: 1000;
   min-width: 400px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: 0 3px 2px 0 var(--Colors-Shadow-Card);
 }
 
@@ -169,7 +180,7 @@
   transform: translate(-50%, -50%);
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--UI-Spacing-spacing-xl);
   padding: var(--UI-Spacing-spacing-xxxl);
   background: var(--Colors-Box-Background);
@@ -179,6 +190,8 @@
   z-index: 1000;
   min-width: 600px;
   max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: 0 3px 2px 0 var(--Colors-Shadow-Card);
 }
 
@@ -257,9 +270,11 @@
   display: none;
   width: 100%;
   max-width: 900px;
-  margin: var(--UI-Spacing-spacing-xl) auto;
+  margin: var(--UI-Spacing-spacing-xl) auto 0;
   padding: var(--UI-Spacing-spacing-lg);
   background: transparent;
+  flex: 0 0 auto; /* Don't grow, don't shrink */
+  overflow: hidden; /* Prevent keyboard from causing scroll */
 }
 
 .bespoke .keyboard-container.visible {
@@ -339,4 +354,250 @@
   color: var(--Colors-Text-Body-Light);
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .bespoke .typing-text-container {
+    font-size: var(--Fonts-Body-Default-xxl);
+    padding: var(--UI-Spacing-spacing-xl);
+    margin: var(--UI-Spacing-spacing-md) auto 0;
+  }
+
+  .bespoke .keyboard-container {
+    padding: var(--UI-Spacing-spacing-md);
+  }
+
+  .bespoke .keyboard {
+    font-size: 11px;
+  }
+
+  .bespoke .keyboard-key {
+    min-width: 24px;
+    height: 28px;
+    padding: 0 var(--UI-Spacing-spacing-xs);
+  }
+
+  .bespoke .keyboard-key.space {
+    min-width: 150px;
+  }
+
+  .bespoke .keyboard-key.enter {
+    min-width: 50px;
+  }
+
+  .bespoke .keyboard-key.shift {
+    min-width: 60px;
+  }
+
+  .bespoke .keyboard-key.backspace {
+    min-width: 60px;
+  }
+
+  .bespoke .keyboard-key.tab {
+    min-width: 40px;
+  }
+
+  .bespoke .keyboard-key.caps {
+    min-width: 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  .bespoke .typing-container {
+    padding: var(--UI-Spacing-spacing-md);
+  }
+
+  .bespoke .typing-text-container {
+    font-size: var(--Fonts-Body-Default-xl);
+    padding: var(--UI-Spacing-spacing-lg);
+    margin: var(--UI-Spacing-spacing-sm) auto 0;
+  }
+
+  .bespoke .completion-screen {
+    min-width: 90vw;
+    max-width: 90vw;
+    padding: var(--UI-Spacing-spacing-xl);
+    gap: var(--UI-Spacing-spacing-lg);
+  }
+
+  .bespoke .completion-screen h2 {
+    font-size: var(--Fonts-Headlines-sm);
+  }
+
+  .bespoke .completion-screen p {
+    font-size: var(--Fonts-Body-Default-md);
+  }
+
+  .bespoke .stats-dashboard {
+    min-width: 90vw;
+    max-width: 90vw;
+    padding: var(--UI-Spacing-spacing-xl);
+    gap: var(--UI-Spacing-spacing-lg);
+  }
+
+  .bespoke .stats-dashboard-header h2 {
+    font-size: var(--Fonts-Headlines-lg);
+  }
+
+  .bespoke .stats-subtitle {
+    font-size: var(--Fonts-Body-Default-sm);
+  }
+
+  .bespoke .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: var(--UI-Spacing-spacing-md);
+  }
+
+  .bespoke .stat-card {
+    padding: var(--UI-Spacing-spacing-md);
+  }
+
+  .bespoke .stat-value {
+    font-size: var(--Fonts-Headlines-sm);
+  }
+
+  .bespoke .stat-label {
+    font-size: var(--Fonts-Body-Default-xs);
+  }
+
+  .bespoke .keyboard-container {
+    padding: var(--UI-Spacing-spacing-sm);
+    margin: var(--UI-Spacing-spacing-md) auto 0;
+  }
+
+  .bespoke .keyboard {
+    font-size: 10px;
+    gap: 2px;
+  }
+
+  .bespoke .keyboard-row {
+    gap: 2px;
+  }
+
+  .bespoke .keyboard-key {
+    min-width: 20px;
+    height: 24px;
+    padding: 0 4px;
+    font-size: 10px;
+  }
+
+  .bespoke .keyboard-key.space {
+    min-width: 120px;
+  }
+
+  .bespoke .keyboard-key.enter {
+    min-width: 40px;
+  }
+
+  .bespoke .keyboard-key.shift {
+    min-width: 50px;
+  }
+
+  .bespoke .keyboard-key.backspace {
+    min-width: 50px;
+  }
+
+  .bespoke .keyboard-key.tab {
+    min-width: 35px;
+  }
+
+  .bespoke .keyboard-key.caps {
+    min-width: 40px;
+  }
+
+  .bespoke .restart-button-container {
+    bottom: var(--UI-Spacing-spacing-md);
+    left: var(--UI-Spacing-spacing-md);
+  }
+
+  .bespoke .restart-button-container button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .bespoke .restart-button-container button svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bespoke .typing-container {
+    padding: var(--UI-Spacing-spacing-sm);
+  }
+
+  .bespoke .typing-text-container {
+    font-size: var(--Fonts-Body-Default-lg);
+    padding: var(--UI-Spacing-spacing-md);
+    margin: var(--UI-Spacing-spacing-xs) auto 0;
+  }
+
+  .bespoke .completion-screen {
+    padding: var(--UI-Spacing-spacing-lg);
+    gap: var(--UI-Spacing-spacing-md);
+  }
+
+  .bespoke .stats-dashboard {
+    padding: var(--UI-Spacing-spacing-lg);
+    gap: var(--UI-Spacing-spacing-md);
+  }
+
+  .bespoke .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--UI-Spacing-spacing-sm);
+  }
+
+  .bespoke .stat-card {
+    padding: var(--UI-Spacing-spacing-sm);
+  }
+
+  .bespoke .stat-value {
+    font-size: var(--Fonts-Headlines-xs);
+  }
+
+  .bespoke .keyboard-container {
+    padding: var(--UI-Spacing-spacing-xs);
+    margin: var(--UI-Spacing-spacing-sm) auto 0;
+  }
+
+  .bespoke .keyboard {
+    font-size: 8px;
+    gap: 1px;
+  }
+
+  .bespoke .keyboard-row {
+    gap: 1px;
+  }
+
+  .bespoke .keyboard-key {
+    min-width: 16px;
+    height: 20px;
+    padding: 0 2px;
+    font-size: 8px;
+  }
+
+  .bespoke .keyboard-key.space {
+    min-width: 100px;
+  }
+
+  .bespoke .keyboard-key.enter {
+    min-width: 35px;
+  }
+
+  .bespoke .keyboard-key.shift {
+    min-width: 40px;
+  }
+
+  .bespoke .keyboard-key.backspace {
+    min-width: 40px;
+  }
+
+  .bespoke .keyboard-key.tab {
+    min-width: 30px;
+  }
+
+  .bespoke .keyboard-key.caps {
+    min-width: 35px;
+  }
 }
