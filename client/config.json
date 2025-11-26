@@ -1,5 +1,6 @@
 {
   "keyboard": true,
   "availableKeys": [],
-  "showStats": true
+  "showStats": true,
+  "realTimeStats": ["time", "chars"]
 }

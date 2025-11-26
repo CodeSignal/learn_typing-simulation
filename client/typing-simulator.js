@@ -10,7 +10,8 @@
   let startOverButton = null;
   let statsStartOverButton = null;
   let keyboardContainer = null;
-  let config = { keyboard: true, availableKeys: [], showStats: false };
+  let realtimeStatsContainer = null;
+  let config = { keyboard: true, availableKeys: [], showStats: false, realTimeStats: [] };
 
   // Normalized set of available keys (for fast lookup)
   let availableKeysSet = new Set();
@@ -27,6 +28,9 @@
   let keyboardEnabled = false;
   let activeKeyElement = null;
   let activeKeyTimeout = null;
+
+  // Real-time stats update interval
+  let realtimeStatsInterval = null;
 
   function setStatus(msg) {
     const status = document.getElementById('status');
@@ -410,6 +414,7 @@
     }
 
     renderText();
+    updateRealtimeStats();
   }
 
   function handleKeyDown(e) {
@@ -505,6 +510,15 @@
     totalErrors = 0;
     totalInputs = 0;
 
+    // Clear real-time stats interval
+    if (realtimeStatsInterval) {
+      clearInterval(realtimeStatsInterval);
+      realtimeStatsInterval = null;
+    }
+
+    // Update real-time stats display
+    updateRealtimeStats();
+
     // Clear keyboard highlights
     if (activeKeyElement) {
       activeKeyElement.classList.remove('active', 'active-error');
@@ -527,6 +541,11 @@
       statsDashboard.style.display = 'none';
     }
 
+    // Show real-time stats again if configured
+    if (realtimeStatsContainer) {
+      updateRealtimeStats();
+    }
+
     // Show keyboard again if it was enabled
     if (keyboardContainer && keyboardEnabled) {
       keyboardContainer.classList.add('visible');
@@ -546,6 +565,122 @@
         hiddenInput.focus();
       }
     }, 50);
+  }
+
+  // Calculate real-time statistics (while typing)
+  function calculateRealtimeStats() {
+    // Calculate chars typed and total
+    const charsTyped = typedText.length;
+    const charsTotal = originalText.length;
+
+    if (startTime === null) {
+      return {
+        speed: 0,
+        accuracy: 0,
+        time: 0,
+        errors: 0,
+        errorsLeft: 0,
+        chars: { typed: charsTyped, total: charsTotal }
+      };
+    }
+
+    const currentTime = Date.now();
+    const totalTimeSeconds = (currentTime - startTime) / 1000;
+    const totalTimeMinutes = totalTimeSeconds / 60;
+
+    // Count errors left (unfixed incorrect characters)
+    let errorsLeft = 0;
+    for (let i = 0; i < charStates.length; i++) {
+      if (charStates[i] === 'incorrect') {
+        errorsLeft++;
+      }
+    }
+
+    // Calculate accuracy: (correct inputs / total inputs) * 100
+    const correctInputs = totalInputs - totalErrors;
+    const accuracy = totalInputs > 0 ? (correctInputs / totalInputs) * 100 : 0;
+
+    // Calculate words per minute
+    // Count words by splitting on whitespace
+    const wordsTyped = originalText.trim().split(/\s+/).filter(word => word.length > 0).length;
+    const wpm = totalTimeMinutes > 0 ? wordsTyped / totalTimeMinutes : 0;
+
+    return {
+      speed: wpm,
+      accuracy: accuracy,
+      time: totalTimeSeconds,
+      errors: totalErrors,
+      errorsLeft: errorsLeft,
+      chars: { typed: charsTyped, total: charsTotal }
+    };
+  }
+
+  // Update real-time stats display
+  function updateRealtimeStats() {
+    if (!realtimeStatsContainer) return;
+
+    // Check if realTimeStats is configured and has items
+    if (!config.realTimeStats || !Array.isArray(config.realTimeStats) || config.realTimeStats.length === 0) {
+      realtimeStatsContainer.style.display = 'none';
+      // Clear interval if stats are disabled
+      if (realtimeStatsInterval) {
+        clearInterval(realtimeStatsInterval);
+        realtimeStatsInterval = null;
+      }
+      return;
+    }
+
+    const stats = calculateRealtimeStats();
+    realtimeStatsContainer.style.display = 'flex';
+
+    // Clear existing content
+    realtimeStatsContainer.innerHTML = '';
+
+    // Map of stat keys to display info
+    const statMap = {
+      speed: { label: 'WPM', value: stats.speed, format: (v) => v.toFixed(1) },
+      accuracy: { label: 'Accuracy', value: stats.accuracy, format: (v) => v.toFixed(1) + '%' },
+      time: { label: 'Time', value: stats.time, format: (v) => {
+        if (v < 60) {
+          return v.toFixed(1) + 's';
+        } else {
+          const minutes = Math.floor(v / 60);
+          const seconds = (v % 60).toFixed(1);
+          return `${minutes}m ${seconds}s`;
+        }
+      }},
+      errors: { label: 'Errors', value: stats.errors, format: (v) => Math.round(v).toString() },
+      errorsLeft: { label: 'Errors Left', value: stats.errorsLeft, format: (v) => Math.round(v).toString() },
+      chars: { label: 'Chars', value: stats.chars, format: (v) => `${v.typed}/${v.total}` }
+    };
+
+    // Create stat items for each configured stat
+    config.realTimeStats.forEach(statKey => {
+      const statInfo = statMap[statKey];
+      if (!statInfo) return; // Skip invalid stat keys
+
+      const statItem = document.createElement('div');
+      statItem.className = 'realtime-stat-item';
+
+      const statLabel = document.createElement('span');
+      statLabel.className = 'realtime-stat-label';
+      statLabel.textContent = statInfo.label;
+
+      const statValue = document.createElement('span');
+      statValue.className = 'realtime-stat-value';
+      statValue.textContent = statInfo.format(statInfo.value);
+
+      statItem.appendChild(statLabel);
+      statItem.appendChild(statValue);
+      realtimeStatsContainer.appendChild(statItem);
+    });
+
+    // Start periodic updates if typing has started and interval not already running
+    if (startTime !== null && !realtimeStatsInterval) {
+      realtimeStatsInterval = setInterval(() => {
+        updateRealtimeStats();
+      }, 100); // Update every 100ms for smooth time updates
+    }
   }
 
   function calculateStatistics() {
@@ -674,6 +809,11 @@ Generated: ${new Date().toLocaleString()}
       keyboardContainer.classList.remove('visible');
     }
 
+    // Hide real-time stats when dashboard is shown
+    if (realtimeStatsContainer) {
+      realtimeStatsContainer.style.display = 'none';
+    }
+
     // Hide completion screen if visible
     if (completionScreen) {
       completionScreen.style.display = 'none';
@@ -757,6 +897,11 @@ Generated: ${new Date().toLocaleString()}
       keyboardContainer.classList.remove('visible');
     }
 
+    // Hide real-time stats when completion screen is shown
+    if (realtimeStatsContainer) {
+      realtimeStatsContainer.style.display = 'none';
+    }
+
     // Hide the restart button when completion screen is shown
     if (restartButton && restartButton.parentElement) {
       restartButton.parentElement.style.display = 'none';
@@ -805,6 +950,7 @@ Generated: ${new Date().toLocaleString()}
     restartButton = document.getElementById('btn-restart');
     startOverButton = document.getElementById('btn-start-over');
     statsStartOverButton = document.getElementById('btn-stats-start-over');
+    realtimeStatsContainer = document.getElementById('realtime-stats-container');
 
     if (!textContainer || !hiddenInput) {
       console.error('Required elements not found');
@@ -844,6 +990,9 @@ Generated: ${new Date().toLocaleString()}
 
     // Load the text
     loadText();
+
+    // Initialize real-time stats display
+    updateRealtimeStats();
 
     // Focus the input after a short delay
     setTimeout(() => {

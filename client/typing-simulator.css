@@ -19,6 +19,64 @@
   min-height: 0; /* Allow flexbox to shrink */
 }
 
+/* Keyboard and Stats Wrapper */
+.bespoke .keyboard-stats-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: var(--UI-Spacing-spacing-xl) auto 0;
+  flex: 0 0 auto; /* Don't grow, don't shrink */
+  min-height: 0; /* Allow flexbox to shrink */
+}
+
+/* Real-time Stats Container */
+.bespoke .realtime-stats-container {
+  display: none;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-xs);
+  padding: var(--UI-Spacing-spacing-md);
+  background: var(--Colors-Box-Background-Secondary);
+  border: none;
+  border-radius: var(--UI-Radius-radius-m);
+  width: 140px;
+  margin-right: var(--UI-Spacing-spacing-xl);
+  z-index: 1;
+}
+
+.bespoke .realtime-stat-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--UI-Spacing-spacing-xs);
+  padding: var(--UI-Spacing-spacing-xs) 0;
+  min-width: 0;
+}
+
+.bespoke .realtime-stat-label {
+  font-size: var(--Fonts-Body-Default-xs);
+  color: var(--Colors-Text-Body-Medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.bespoke .realtime-stat-value {
+  font-size: var(--Fonts-Headlines-sm);
+  font-weight: 600;
+  color: var(--Colors-Primary-Default);
+  font-family: var(--heading-family);
+  text-align: right;
+  flex-shrink: 0;
+  min-width: 60px;
+  font-variant-numeric: tabular-nums;
+}
+
 .bespoke .typing-text-container {
   flex: 1 1 auto;
   position: relative;
@@ -269,12 +327,17 @@
 .bespoke .keyboard-container {
   display: none;
   width: 100%;
-  max-width: 900px;
-  margin: var(--UI-Spacing-spacing-xl) auto 0;
   padding: var(--UI-Spacing-spacing-lg);
   background: transparent;
-  flex: 0 0 auto; /* Don't grow, don't shrink */
   overflow: hidden; /* Prevent keyboard from causing scroll */
+}
+
+.bespoke .keyboard-container.visible {
+  display: block;
+}
+
+.bespoke .keyboard-container .keyboard {
+  margin: 0 auto; /* Center the keyboard */
 }
 
 .bespoke .keyboard-container.visible {
@@ -358,6 +421,29 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
+  .bespoke .keyboard-stats-wrapper {
+    margin: var(--UI-Spacing-spacing-lg) auto 0;
+  }
+
+  .bespoke .realtime-stats-container {
+    gap: var(--UI-Spacing-spacing-xs);
+    padding: var(--UI-Spacing-spacing-sm);
+    min-width: 130px;
+  }
+
+  .bespoke .realtime-stat-item {
+    padding: var(--UI-Spacing-spacing-xs);
+    gap: var(--UI-Spacing-spacing-sm);
+  }
+
+  .bespoke .realtime-stat-label {
+    font-size: var(--Fonts-Body-Default-xxs);
+  }
+
+  .bespoke .realtime-stat-value {
+    font-size: var(--Fonts-Headlines-xs);
+  }
+
   .bespoke .typing-text-container {
     font-size: var(--Fonts-Body-Default-xxl);
     padding: var(--UI-Spacing-spacing-xl);
@@ -404,6 +490,29 @@
 }
 
 @media (max-width: 768px) {
+  .bespoke .keyboard-stats-wrapper {
+    margin: var(--UI-Spacing-spacing-md) auto 0;
+  }
+
+  .bespoke .realtime-stats-container {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    min-width: auto;
+    gap: var(--UI-Spacing-spacing-xs);
+    padding: var(--UI-Spacing-spacing-sm);
+    margin-bottom: var(--UI-Spacing-spacing-md);
+  }
+
+  .bespoke .realtime-stat-item {
+    padding: var(--UI-Spacing-spacing-xs);
+    gap: var(--UI-Spacing-spacing-sm);
+  }
+
+  .bespoke .keyboard-container {
+    width: 100%;
+  }
+
   .bespoke .typing-container {
     padding: var(--UI-Spacing-spacing-md);
   }
@@ -523,6 +632,25 @@
 }
 
 @media (max-width: 480px) {
+  .bespoke .keyboard-stats-wrapper {
+    margin: var(--UI-Spacing-spacing-sm) auto 0;
+  }
+
+  .bespoke .realtime-stats-container {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    min-width: auto;
+    gap: var(--UI-Spacing-spacing-xs);
+    padding: var(--UI-Spacing-spacing-xs);
+    margin-bottom: var(--UI-Spacing-spacing-sm);
+  }
+
+  .bespoke .realtime-stat-item {
+    padding: 2px var(--UI-Spacing-spacing-xs);
+    gap: var(--UI-Spacing-spacing-xs);
+  }
+
   .bespoke .typing-container {
     padding: var(--UI-Spacing-spacing-sm);
   }
