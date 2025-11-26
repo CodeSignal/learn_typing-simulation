@@ -57,7 +57,7 @@
   // Load help content and initialize modal
   async function initializeHelpModal() {
     try {
-      const response = await fetch('./help-content-template.html');
+      const response = await fetch('./help-content.html');
       const helpContent = await response.text();
 
       // Initialize help modal with actual content
@@ -73,7 +73,7 @@
       // Fallback to placeholder content
       HelpModal.init({
         triggerSelector: '#btn-help',
-        content: '<p>Help content could not be loaded. Please check that help-content-template.html exists.</p>',
+        content: '<p>Help content could not be loaded. Please check that help-content.html exists.</p>',
         theme: 'auto'
       });
       setStatus('Ready (help content unavailable)');

@@ -112,6 +112,35 @@ function handlePostRequest(req, res, parsedUrl) {
         res.end(JSON.stringify({ error: 'Invalid JSON' }));
       }
     });
+  } else if (parsedUrl.pathname === '/save-stats') {
+    let body = '';
+
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+
+    req.on('end', () => {
+      try {
+        const clientDir = path.join(__dirname, 'client');
+        const statsPath = path.join(clientDir, 'stats.txt');
+
+        // Ensure client directory exists
+        if (!fs.existsSync(clientDir)) {
+          fs.mkdirSync(clientDir, { recursive: true });
+        }
+
+        // Write stats to file
+        fs.writeFileSync(statsPath, body, 'utf8');
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, message: 'Statistics saved' }));
+
+      } catch (error) {
+        console.error('Error saving statistics:', error);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Failed to save statistics' }));
+      }
+    });
   } else {
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('Not found');

@@ -1,0 +1,161 @@
+/* typing-simulator.css */
+
+/* Override main-layout grid to use full width (no sidebar in typing simulator) */
+.bespoke .main-layout {
+  grid-template-columns: 1fr;
+}
+
+.bespoke .typing-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--UI-Spacing-spacing-xl);
+}
+
+.bespoke .typing-text-container {
+  flex: 1;
+  position: relative;
+  overflow-y: auto;
+  padding: var(--UI-Spacing-spacing-mxl);
+  background: transparent;
+  font-family: var(--body-family);
+  font-size: var(--Fonts-Body-Default-xxxl);
+  line-height: 140%;
+  cursor: text;
+  min-height: 400px;
+  max-width: 900px;
+  width: 100%;
+  margin: var(--UI-Spacing-spacing-4xl) auto 0;
+}
+
+.bespoke .typing-text {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  user-select: none;
+  text-align: left;
+  width: 100%;
+}
+
+.bespoke .typing-text .char-pending {
+  color: var(--Colors-Text-Body-Light);
+}
+
+.bespoke .typing-text .char-correct {
+  color: var(--Colors-Text-Body-Strongest);
+}
+
+.bespoke .typing-text .char-incorrect {
+  color: var(--Colors-Alert-Error-Default);
+  background-color: var(--Colors-Alert-Error-Lighter);
+}
+
+.bespoke .typing-text .cursor-position {
+  position: relative;
+}
+
+.bespoke .typing-text .cursor-position::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--Colors-Primary-Default);
+  animation: blink 1s step-end infinite;
+  pointer-events: none;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+.bespoke .hidden-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bespoke .restart-button-container {
+  position: fixed;
+  bottom: var(--UI-Spacing-spacing-mxl);
+  left: var(--UI-Spacing-spacing-mxl);
+  z-index: 1000;
+}
+
+.bespoke .restart-button-container button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--UI-Radius-radius-s);
+}
+
+.bespoke .restart-button-container button:active,
+.bespoke .restart-button-container button.active {
+  box-shadow: none;
+  border-bottom: none;
+  color: var(--Colors-Buttons-Text-Primary-Hover);
+}
+
+.bespoke .restart-button-container button:focus,
+.bespoke .restart-button-container button.focus {
+  box-shadow: none;
+  border-bottom: none;
+  outline: none;
+  color: var(--Colors-Buttons-Text-Primary-Hover);
+}
+
+.bespoke .restart-button-container button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.bespoke .completion-screen {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--UI-Spacing-spacing-xl);
+  padding: var(--UI-Spacing-spacing-xxxl);
+  background: var(--Colors-Box-Background);
+  border-radius: var(--UI-Radius-radius-m);
+  border: 1px solid var(--Colors-Stroke-Default);
+  text-align: center;
+  z-index: 1000;
+  min-width: 400px;
+  box-shadow: 0 3px 2px 0 var(--Colors-Shadow-Card);
+}
+
+.bespoke .completion-screen h2 {
+  font-size: var(--Fonts-Headlines-md);
+  margin: 0;
+  color: var(--Colors-Text-Body-Strongest);
+  font-family: var(--heading-family);
+  font-weight: 500;
+}
+
+.bespoke .completion-screen p {
+  font-size: var(--Fonts-Body-Default-lg);
+  color: var(--Colors-Text-Body-Medium);
+  margin: 0;
+}

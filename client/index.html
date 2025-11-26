@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title><!-- APP_TITLE --></title>
+  <title>Typing Simulator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- Fonts (Work Sans) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,20 +23,50 @@
 
   <!-- Template-specific components (layout, utilities, temporary components) -->
   <link rel="stylesheet" href="./bespoke-template.css" />
-  <!-- APP_SPECIFIC_CSS -->
+  <link rel="stylesheet" href="./typing-simulator.css" />
 </head>
 <body class="bespoke">
   <!-- Navigation Header -->
   <header class="header">
-    <h1>APP NAME</h1>
-    <!-- APP_SPECIFIC_HEADER_CONTENT -->
+    <h1>Typing Simulator</h1>
     <div class="spacer"></div>
     <div id="status" class="status">Ready</div>
     <button id="btn-help" class="button button-text">Help</button>
   </header>
 
   <!-- Main Application Content -->
-  <!-- APP_SPECIFIC_MAIN_CONTENT -->
+  <main class="main-layout">
+    <div class="content-area">
+      <div class="typing-container">
+        <div class="typing-text-container">
+          <div id="typing-text" class="typing-text"></div>
+          <input
+            type="text"
+            id="hidden-input"
+            class="hidden-input"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+          />
+        </div>
+        <div id="completion-screen" class="completion-screen">
+          <h2>Completed</h2>
+          <p>Great job! You've finished typing the text.</p>
+          <button id="btn-start-over" class="button button-primary">Start Over</button>
+        </div>
+        <div class="restart-button-container">
+          <button id="btn-restart" class="button button-text" title="Start Over">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
 
   <!-- Help Modal (automatically managed by help-modal.js) -->
   <!-- The modal structure is created dynamically by the JavaScript -->
@@ -44,7 +74,7 @@
   <!-- Core Scripts -->
   <script src="./help-modal.js"></script>
   <script src="./app.js"></script>
-  <!-- APP_SPECIFIC_SCRIPTS -->
+  <script src="./typing-simulator.js"></script>
 
   <script>
     // Your app-specific initialization code goes here
