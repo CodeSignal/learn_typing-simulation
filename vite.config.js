@@ -9,15 +9,15 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/message': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:3001',
         changeOrigin: true
       },
       '/save-stats': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:3001',
         changeOrigin: true
       },
       '/ws': {
-        target: 'ws://localhost:3000',
+        target: 'ws://localhost:3001',
         ws: true,
         changeOrigin: true
       }
