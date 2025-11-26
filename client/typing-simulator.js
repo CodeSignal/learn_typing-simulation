@@ -546,6 +546,12 @@
       updateRealtimeStats();
     }
 
+    // Show keyboard-stats-wrapper again
+    const keyboardStatsWrapper = document.querySelector('.keyboard-stats-wrapper');
+    if (keyboardStatsWrapper) {
+      keyboardStatsWrapper.style.display = 'block';
+    }
+
     // Show keyboard again if it was enabled
     if (keyboardContainer && keyboardEnabled) {
       keyboardContainer.classList.add('visible');
@@ -814,6 +820,12 @@ Generated: ${new Date().toLocaleString()}
       realtimeStatsContainer.style.display = 'none';
     }
 
+    // Hide keyboard-stats-wrapper when dashboard is shown
+    const keyboardStatsWrapper = document.querySelector('.keyboard-stats-wrapper');
+    if (keyboardStatsWrapper) {
+      keyboardStatsWrapper.style.display = 'none';
+    }
+
     // Hide completion screen if visible
     if (completionScreen) {
       completionScreen.style.display = 'none';
@@ -902,6 +914,12 @@ Generated: ${new Date().toLocaleString()}
       realtimeStatsContainer.style.display = 'none';
     }
 
+    // Hide keyboard-stats-wrapper when completion screen is shown
+    const keyboardStatsWrapper = document.querySelector('.keyboard-stats-wrapper');
+    if (keyboardStatsWrapper) {
+      keyboardStatsWrapper.style.display = 'none';
+    }
+
     // Hide the restart button when completion screen is shown
     if (restartButton && restartButton.parentElement) {
       restartButton.parentElement.style.display = 'none';
@@ -923,6 +941,10 @@ Generated: ${new Date().toLocaleString()}
           }, 200);
         } else {
           // Show simple completion screen
+          // Ensure real-time stats are hidden
+          if (realtimeStatsContainer) {
+            realtimeStatsContainer.style.display = 'none';
+          }
           completionScreen.style.display = 'flex';
           if (hiddenInput) {
             hiddenInput.blur();
@@ -932,9 +954,13 @@ Generated: ${new Date().toLocaleString()}
     } else {
       console.log('No statistics to save (stats is null)');
       // Show simple completion screen
-    completionScreen.style.display = 'flex';
-    if (hiddenInput) {
-      hiddenInput.blur();
+      // Ensure real-time stats are hidden
+      if (realtimeStatsContainer) {
+        realtimeStatsContainer.style.display = 'none';
+      }
+      completionScreen.style.display = 'flex';
+      if (hiddenInput) {
+        hiddenInput.blur();
       }
     }
   }

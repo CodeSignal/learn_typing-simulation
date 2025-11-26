@@ -36,7 +36,7 @@
   left: 0;
   bottom: 0;
   flex-direction: column;
-  gap: var(--UI-Spacing-spacing-xs);
+  gap: 2px;
   padding: var(--UI-Spacing-spacing-md);
   background: var(--Colors-Box-Background-Secondary);
   border: none;
@@ -52,7 +52,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--UI-Spacing-spacing-xs);
-  padding: var(--UI-Spacing-spacing-xs) 0;
+  padding: 0;
   min-width: 0;
 }
 
@@ -116,7 +116,6 @@
 
 .bespoke .typing-text .char-incorrect {
   color: var(--Colors-Alert-Error-Default);
-  background-color: var(--Colors-Alert-Error-Lighter);
 }
 
 .bespoke .typing-text .cursor-position {
@@ -240,17 +239,14 @@
   align-items: center;
   justify-content: flex-start;
   gap: var(--UI-Spacing-spacing-xl);
-  padding: var(--UI-Spacing-spacing-xxxl);
-  background: var(--Colors-Box-Background);
-  border-radius: var(--UI-Radius-radius-m);
-  border: 1px solid var(--Colors-Stroke-Default);
+  padding: var(--UI-Spacing-spacing-xl);
+  background: var(--Colors-Backgrounds-Main-Default);
   text-align: center;
   z-index: 1000;
   min-width: 600px;
-  max-width: 800px;
+  max-width: 90vw;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 3px 2px 0 var(--Colors-Shadow-Card);
 }
 
 .bespoke .stats-dashboard-header {
@@ -274,10 +270,10 @@
 
 .bespoke .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
-  gap: var(--UI-Spacing-spacing-xl);
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--UI-Spacing-spacing-mxl);
   width: 100%;
-  margin: var(--UI-Spacing-spacing-lg) 0;
+  margin: var(--UI-Spacing-spacing-xl) 0;
 }
 
 .bespoke .stat-card {
@@ -285,7 +281,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--UI-Spacing-spacing-xl);
+  padding: var(--UI-Spacing-spacing-mxl);
   background: var(--Colors-Box-Background-Secondary);
   border: 1px solid var(--Colors-Stroke-Default);
   border-radius: var(--UI-Radius-radius-m);
@@ -305,7 +301,7 @@
 }
 
 .bespoke .stat-value {
-  font-size: var(--Fonts-Headlines-md);
+  font-size: var(--Fonts-Headlines-sm);
   font-weight: 600;
   color: var(--Colors-Primary-Default);
   font-family: var(--heading-family);
@@ -426,13 +422,13 @@
   }
 
   .bespoke .realtime-stats-container {
-    gap: var(--UI-Spacing-spacing-xs);
+    gap: 2px;
     padding: var(--UI-Spacing-spacing-sm);
     min-width: 130px;
   }
 
   .bespoke .realtime-stat-item {
-    padding: var(--UI-Spacing-spacing-xs);
+    padding: 0;
     gap: var(--UI-Spacing-spacing-sm);
   }
 
@@ -499,13 +495,13 @@
     width: 100%;
     max-width: 100%;
     min-width: auto;
-    gap: var(--UI-Spacing-spacing-xs);
+    gap: 2px;
     padding: var(--UI-Spacing-spacing-sm);
     margin-bottom: var(--UI-Spacing-spacing-md);
   }
 
   .bespoke .realtime-stat-item {
-    padding: var(--UI-Spacing-spacing-xs);
+    padding: 0;
     gap: var(--UI-Spacing-spacing-sm);
   }
 
@@ -554,16 +550,16 @@
   }
 
   .bespoke .stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: var(--UI-Spacing-spacing-md);
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--UI-Spacing-spacing-m);
   }
 
   .bespoke .stat-card {
-    padding: var(--UI-Spacing-spacing-md);
+    padding: var(--UI-Spacing-spacing-m);
   }
 
   .bespoke .stat-value {
-    font-size: var(--Fonts-Headlines-sm);
+    font-size: var(--Fonts-Headlines-xs);
   }
 
   .bespoke .stat-label {
@@ -641,13 +637,13 @@
     width: 100%;
     max-width: 100%;
     min-width: auto;
-    gap: var(--UI-Spacing-spacing-xs);
+    gap: 2px;
     padding: var(--UI-Spacing-spacing-xs);
     margin-bottom: var(--UI-Spacing-spacing-sm);
   }
 
   .bespoke .realtime-stat-item {
-    padding: 2px var(--UI-Spacing-spacing-xs);
+    padding: 0;
     gap: var(--UI-Spacing-spacing-xs);
   }
 
@@ -672,16 +668,16 @@
   }
 
   .bespoke .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--UI-Spacing-spacing-sm);
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--UI-Spacing-spacing-s);
   }
 
   .bespoke .stat-card {
-    padding: var(--UI-Spacing-spacing-sm);
+    padding: var(--UI-Spacing-spacing-s);
   }
 
   .bespoke .stat-value {
-    font-size: var(--Fonts-Headlines-xs);
+    font-size: 0.875rem;
   }
 
   .bespoke .keyboard-container {
