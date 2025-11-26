@@ -3,4 +3,4 @@ with newlines!
 
 And special symbols: \ [ `.
 
-Reach the end to end!
+Reach the end to finish!
