@@ -7,6 +7,8 @@
   let completionScreen = null;
   let restartButton = null;
   let startOverButton = null;
+  let keyboardContainer = null;
+  let config = { keyboard: true };
 
   // Character states: 'pending', 'correct', 'incorrect'
   const charStates = [];
@@ -16,10 +18,155 @@
   let totalErrors = 0;
   let totalInputs = 0;
 
+  // Keyboard state
+  let keyboardEnabled = false;
+  let activeKeyElement = null;
+  let activeKeyTimeout = null;
+
   function setStatus(msg) {
     const status = document.getElementById('status');
     if (status) {
       status.textContent = msg;
+    }
+  }
+
+  // Load configuration
+  async function loadConfig() {
+    try {
+      const response = await fetch('./config.json');
+      if (!response.ok) {
+        console.warn('Config file not found, using defaults');
+        return;
+      }
+      config = await response.json();
+    } catch (error) {
+      console.warn('Error loading config:', error);
+    }
+  }
+
+  // Keyboard layout definition
+  const keyboardLayout = [
+    ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'backspace'],
+    ['tab', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
+    ['caps', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'", 'enter'],
+    ['shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'shift'],
+    ['space']
+  ];
+
+  // Map special keys to display names
+  const keyDisplayNames = {
+    'backspace': '⌫',
+    'tab': 'Tab',
+    'caps': 'Caps',
+    'enter': 'Enter',
+    'shift': 'Shift',
+    'space': 'Space'
+  };
+
+  // Get key element by character
+  function getKeyElement(char) {
+    if (!keyboardContainer) return null;
+
+    // Normalize character
+    const normalizedChar = char.toLowerCase();
+
+    // Handle special keys
+    if (char === ' ') {
+      return keyboardContainer.querySelector('[data-key="space"]');
+    }
+    if (char === '\n' || char === '\r') {
+      return keyboardContainer.querySelector('[data-key="enter"]');
+    }
+    if (char === '\t') {
+      return keyboardContainer.querySelector('[data-key="tab"]');
+    }
+
+    // Find regular key
+    return keyboardContainer.querySelector(`[data-key="${normalizedChar}"]`);
+  }
+
+  // Highlight a key on the keyboard
+  function highlightKey(char, isError = false) {
+    // Clear previous highlight
+    if (activeKeyElement) {
+      activeKeyElement.classList.remove('active', 'active-error');
+    }
+
+    // Clear timeout if exists
+    if (activeKeyTimeout) {
+      clearTimeout(activeKeyTimeout);
+    }
+
+    const keyElement = getKeyElement(char);
+    if (keyElement) {
+      activeKeyElement = keyElement;
+      if (isError) {
+        keyElement.classList.add('active-error');
+      } else {
+        keyElement.classList.add('active');
+      }
+
+      // Remove highlight after animation
+      activeKeyTimeout = setTimeout(() => {
+        if (keyElement) {
+          keyElement.classList.remove('active', 'active-error');
+        }
+        activeKeyElement = null;
+      }, 200);
+    }
+  }
+
+  // Render the keyboard
+  function renderKeyboard() {
+    if (!keyboardContainer) return;
+
+    const keyboard = document.createElement('div');
+    keyboard.className = 'keyboard';
+
+    keyboardLayout.forEach(row => {
+      const rowElement = document.createElement('div');
+      rowElement.className = 'keyboard-row';
+
+      row.forEach(key => {
+        const keyElement = document.createElement('div');
+        keyElement.className = 'keyboard-key';
+        keyElement.setAttribute('data-key', key.toLowerCase());
+
+        // Add special class for certain keys
+        if (key === 'space' || key === 'enter' || key === 'shift' ||
+            key === 'backspace' || key === 'tab' || key === 'caps') {
+          keyElement.classList.add(key);
+        }
+
+        // Set display text
+        if (keyDisplayNames[key]) {
+          keyElement.textContent = keyDisplayNames[key];
+        } else {
+          keyElement.textContent = key.toUpperCase();
+        }
+
+        rowElement.appendChild(keyElement);
+      });
+
+      keyboard.appendChild(rowElement);
+    });
+
+    keyboardContainer.innerHTML = '';
+    keyboardContainer.appendChild(keyboard);
+  }
+
+  // Initialize keyboard
+  function initializeKeyboard() {
+    keyboardContainer = document.getElementById('keyboard-container');
+    if (!keyboardContainer) return;
+
+    keyboardEnabled = config.keyboard === true;
+
+    if (keyboardEnabled) {
+      renderKeyboard();
+      keyboardContainer.classList.add('visible');
+    } else {
+      keyboardContainer.classList.remove('visible');
     }
   }
 
@@ -159,11 +306,17 @@
 
         totalInputs++; // Track total inputs
 
-        if (typedChar === expectedChar) {
-          charStates[charIndex] = 'correct';
-        } else {
+        const isError = typedChar !== expectedChar;
+        if (isError) {
           charStates[charIndex] = 'incorrect';
           totalErrors++; // Track total errors (even if later fixed)
+        } else {
+          charStates[charIndex] = 'correct';
+        }
+
+        // Highlight keyboard key
+        if (keyboardEnabled) {
+          highlightKey(typedChar, isError);
         }
       }
       typedText = input;
@@ -177,6 +330,11 @@
           charStates[i] = 'pending';
         }
       }
+
+      // Highlight backspace key
+      if (keyboardEnabled) {
+        highlightKey('backspace', false);
+      }
     }
 
     renderText();
@@ -186,6 +344,16 @@
     // Prevent default behavior for backspace when at start
     if (e.key === 'Backspace' && hiddenInput.value.length === 0) {
       e.preventDefault();
+    }
+
+    // Highlight special keys that might not trigger input event
+    if (keyboardEnabled) {
+      if (e.key === 'Enter' || e.key === 'Return') {
+        highlightKey('\n', false);
+      } else if (e.key === 'Tab') {
+        highlightKey('\t', false);
+        e.preventDefault(); // Prevent tab from moving focus
+      }
     }
 
     // Allow all other keys to work normally
@@ -205,6 +373,16 @@
     startTime = null;
     totalErrors = 0;
     totalInputs = 0;
+
+    // Clear keyboard highlights
+    if (activeKeyElement) {
+      activeKeyElement.classList.remove('active', 'active-error');
+      activeKeyElement = null;
+    }
+    if (activeKeyTimeout) {
+      clearTimeout(activeKeyTimeout);
+      activeKeyTimeout = null;
+    }
 
     // Show typing container and hide completion screen
     const typingTextContainer = document.querySelector('.typing-text-container');
@@ -350,7 +528,10 @@ Generated: ${new Date().toLocaleString()}
     }
   }
 
-  function initialize() {
+  async function initialize() {
+    // Load config first
+    await loadConfig();
+
     textContainer = document.getElementById('typing-text');
     hiddenInput = document.getElementById('hidden-input');
     completionScreen = document.getElementById('completion-screen');
@@ -361,6 +542,9 @@ Generated: ${new Date().toLocaleString()}
       console.error('Required elements not found');
       return;
     }
+
+    // Initialize keyboard
+    initializeKeyboard();
 
     // Set up event listeners
     hiddenInput.addEventListener('input', handleInput);

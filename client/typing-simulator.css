@@ -159,3 +159,84 @@
   color: var(--Colors-Text-Body-Medium);
   margin: 0;
 }
+
+/* Mini Keyboard Styles */
+.bespoke .keyboard-container {
+  display: none;
+  width: 100%;
+  max-width: 900px;
+  margin: var(--UI-Spacing-spacing-xl) auto;
+  padding: var(--UI-Spacing-spacing-lg);
+  background: transparent;
+}
+
+.bespoke .keyboard-container.visible {
+  display: block;
+}
+
+.bespoke .keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--UI-Spacing-spacing-xs);
+  font-family: var(--body-family);
+  font-size: 12px;
+  user-select: none;
+}
+
+.bespoke .keyboard-row {
+  display: flex;
+  justify-content: center;
+  gap: var(--UI-Spacing-spacing-xs);
+}
+
+.bespoke .keyboard-key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 32px;
+  padding: 0 var(--UI-Spacing-spacing-sm);
+  background: var(--Colors-Box-Background-Secondary);
+  border: 1px solid var(--Colors-Stroke-Default);
+  border-radius: var(--UI-Radius-radius-s);
+  color: var(--Colors-Text-Body-Strongest);
+  font-weight: 500;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px 0 var(--Colors-Shadow-Card);
+}
+
+.bespoke .keyboard-key.space {
+  min-width: 200px;
+}
+
+.bespoke .keyboard-key.enter {
+  min-width: 60px;
+}
+
+.bespoke .keyboard-key.shift {
+  min-width: 70px;
+}
+
+.bespoke .keyboard-key.backspace {
+  min-width: 70px;
+}
+
+.bespoke .keyboard-key.tab {
+  min-width: 50px;
+}
+
+.bespoke .keyboard-key.caps {
+  min-width: 60px;
+}
+
+.bespoke .keyboard-key.active {
+  background: color-mix(in srgb, var(--Colors-Primary-Default) 30%, transparent);
+  border-color: var(--Colors-Primary-Default);
+  transform: scale(0.95);
+}
+
+.bespoke .keyboard-key.active-error {
+  background: color-mix(in srgb, var(--Colors-Alert-Error-Default) 30%, transparent);
+  border-color: var(--Colors-Alert-Error-Default);
+  transform: scale(0.95);
+}
