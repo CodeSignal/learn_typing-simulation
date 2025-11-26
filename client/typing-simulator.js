@@ -413,6 +413,72 @@
   }
 
   function handleKeyDown(e) {
+    // Handle Enter key - check availability but let textarea handle insertion
+    if (e.key === 'Enter' || e.key === 'Return') {
+      if (!isKeyAvailable('\n')) {
+        e.preventDefault(); // Prevent if not available
+        return;
+      }
+
+      // Check if we can still type (not beyond original text length)
+      if (hiddenInput.value.length >= originalText.length) {
+        e.preventDefault(); // Can't type beyond original text
+        return;
+      }
+
+      // Let the browser handle the newline insertion naturally
+      // Highlight keyboard key if enabled
+      if (keyboardEnabled) {
+        // Use setTimeout to highlight after the newline is inserted
+        setTimeout(() => {
+          highlightKey('\n', false);
+        }, 0);
+      }
+
+      // The input event will fire naturally, no need to manually trigger
+      return;
+    }
+
+    // Handle Tab key - manually insert tab character
+    if (e.key === 'Tab') {
+      e.preventDefault(); // Prevent tab from moving focus
+
+      if (!isKeyAvailable('\t')) {
+        return; // Key not available, don't insert
+      }
+
+      // Check if we can still type (not beyond original text length)
+      if (hiddenInput.value.length >= originalText.length) {
+        return; // Can't type beyond original text
+      }
+
+      // Get current cursor position
+      const cursorPos = hiddenInput.selectionStart || hiddenInput.value.length;
+
+      // Insert tab at cursor position
+      const currentValue = hiddenInput.value;
+      const newValue = currentValue.slice(0, cursorPos) + '\t' + currentValue.slice(cursorPos);
+
+      // Update input value
+      hiddenInput.value = newValue;
+
+      // Move cursor after the inserted tab
+      setTimeout(() => {
+        hiddenInput.setSelectionRange(cursorPos + 1, cursorPos + 1);
+      }, 0);
+
+      // Highlight keyboard key if enabled
+      if (keyboardEnabled) {
+        highlightKey('\t', false);
+      }
+
+      // Manually trigger input event to process the tab
+      const inputEvent = new Event('input', { bubbles: true });
+      hiddenInput.dispatchEvent(inputEvent);
+
+      return;
+    }
+
     // Prevent unavailable keys from being typed
     if (availableKeysSet.size > 0 && !isKeyAvailable(e.key)) {
       e.preventDefault();
@@ -423,25 +489,6 @@
     if (e.key === 'Backspace' && hiddenInput.value.length === 0) {
       e.preventDefault();
     }
-
-    // Highlight special keys that might not trigger input event
-    if (keyboardEnabled) {
-      if (e.key === 'Enter' || e.key === 'Return') {
-        if (isKeyAvailable('\n')) {
-          highlightKey('\n', false);
-        } else {
-          e.preventDefault();
-        }
-      } else if (e.key === 'Tab') {
-        if (isKeyAvailable('\t')) {
-          highlightKey('\t', false);
-        }
-        e.preventDefault(); // Prevent tab from moving focus
-      }
-    }
-
-    // Allow all other keys to work normally
-    // The input handler will process the changes
   }
 
   function restart() {

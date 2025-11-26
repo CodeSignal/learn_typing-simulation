@@ -1,10 +1,10 @@
 Typing Statistics
 ==================
 
-Total Errors Made: 8
-Errors Left (Unfixed): 5
-Total Time: 17.31 seconds
-Accuracy: 86.89%
-Speed: 34.66 words per minute
+Total Errors Made: 0
+Errors Left (Unfixed): 0
+Total Time: 11.63 seconds
+Accuracy: 100.00%
+Speed: 51.61 words per minute
 
-Generated: 26/11/2025, 06:10:40
+Generated: 26/11/2025, 06:23:38
