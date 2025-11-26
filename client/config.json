@@ -1,3 +1,5 @@
 {
-  "keyboard": true
+  "keyboard": true,
+  "availableKeys": [],
+  "showStats": true
 }

@@ -5,10 +5,15 @@
   let textContainer = null;
   let hiddenInput = null;
   let completionScreen = null;
+  let statsDashboard = null;
   let restartButton = null;
   let startOverButton = null;
+  let statsStartOverButton = null;
   let keyboardContainer = null;
-  let config = { keyboard: true };
+  let config = { keyboard: true, availableKeys: [], showStats: false };
+
+  // Normalized set of available keys (for fast lookup)
+  let availableKeysSet = new Set();
 
   // Character states: 'pending', 'correct', 'incorrect'
   const charStates = [];
@@ -39,6 +44,14 @@
         return;
       }
       config = await response.json();
+
+      // Normalize available keys to lowercase for fast lookup
+      // Empty array means all keys are available
+      if (config.availableKeys && Array.isArray(config.availableKeys) && config.availableKeys.length > 0) {
+        availableKeysSet = new Set(config.availableKeys.map(key => key.toLowerCase()));
+      } else {
+        availableKeysSet = new Set(); // Empty set means all keys available
+      }
     } catch (error) {
       console.warn('Error loading config:', error);
     }
@@ -62,6 +75,40 @@
     'shift': 'Shift',
     'space': 'Space'
   };
+
+  // Check if a key is available for typing
+  // Accepts both character values (from input) and KeyboardEvent.key values
+  function isKeyAvailable(key) {
+    // Space, comma, dot, backspace, and enter are ALWAYS available
+    const keyLower = key.toLowerCase();
+    if (key === ' ' || key === '\u00A0' || key === ',' || key === '.' ||
+        key === 'Backspace' || key === '\b' || key === 'Enter' || key === 'Return' ||
+        key === '\n' || key === '\r' ||
+        keyLower === 'space' || keyLower === 'comma' || keyLower === 'dot' ||
+        keyLower === 'backspace' || keyLower === 'enter') {
+      return true;
+    }
+
+    // If no available keys are configured, all keys are available
+    if (availableKeysSet.size === 0) {
+      return true;
+    }
+
+    // Handle KeyboardEvent.key values (e.g., "Tab")
+    if (key === 'Tab' || keyLower === 'tab') {
+      return availableKeysSet.has('tab');
+    }
+
+    // Handle character values (from input events)
+    if (key === '\t') {
+      return availableKeysSet.has('tab');
+    }
+
+    // For regular keys, normalize to lowercase and check
+    // Handle both single characters and KeyboardEvent.key values
+    const normalizedKey = key.length === 1 ? key.toLowerCase() : keyLower;
+    return availableKeysSet.has(normalizedKey);
+  }
 
   // Get key element by character
   function getKeyElement(char) {
@@ -87,6 +134,11 @@
 
   // Highlight a key on the keyboard
   function highlightKey(char, isError = false) {
+    // Don't highlight unavailable keys
+    if (!isKeyAvailable(char)) {
+      return;
+    }
+
     // Clear previous highlight
     if (activeKeyElement) {
       activeKeyElement.classList.remove('active', 'active-error');
@@ -129,8 +181,15 @@
 
       row.forEach(key => {
         const keyElement = document.createElement('div');
+        const normalizedKey = key.toLowerCase();
         keyElement.className = 'keyboard-key';
-        keyElement.setAttribute('data-key', key.toLowerCase());
+        keyElement.setAttribute('data-key', normalizedKey);
+
+        // Check if this key is available (use isKeyAvailable to ensure space, comma, dot are always available)
+        const isAvailable = isKeyAvailable(key);
+        if (!isAvailable) {
+          keyElement.classList.add('unavailable');
+        }
 
         // Add special class for certain keys
         if (key === 'space' || key === 'enter' || key === 'shift' ||
@@ -278,6 +337,19 @@
   function handleInput(e) {
     let input = e.target.value;
 
+    // Filter out unavailable keys if availableKeys is configured
+    if (availableKeysSet.size > 0) {
+      let filteredInput = '';
+      for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        if (isKeyAvailable(char)) {
+          filteredInput += char;
+        }
+      }
+      input = filteredInput;
+      e.target.value = input;
+    }
+
     // Start timer on first keypress
     if (startTime === null && input.length > 0) {
       startTime = Date.now();
@@ -331,8 +403,8 @@
         }
       }
 
-      // Highlight backspace key
-      if (keyboardEnabled) {
+      // Highlight backspace key (only if available)
+      if (keyboardEnabled && isKeyAvailable('backspace')) {
         highlightKey('backspace', false);
       }
     }
@@ -341,6 +413,12 @@
   }
 
   function handleKeyDown(e) {
+    // Prevent unavailable keys from being typed
+    if (availableKeysSet.size > 0 && !isKeyAvailable(e.key)) {
+      e.preventDefault();
+      return;
+    }
+
     // Prevent default behavior for backspace when at start
     if (e.key === 'Backspace' && hiddenInput.value.length === 0) {
       e.preventDefault();
@@ -349,9 +427,15 @@
     // Highlight special keys that might not trigger input event
     if (keyboardEnabled) {
       if (e.key === 'Enter' || e.key === 'Return') {
-        highlightKey('\n', false);
+        if (isKeyAvailable('\n')) {
+          highlightKey('\n', false);
+        } else {
+          e.preventDefault();
+        }
       } else if (e.key === 'Tab') {
-        highlightKey('\t', false);
+        if (isKeyAvailable('\t')) {
+          highlightKey('\t', false);
+        }
         e.preventDefault(); // Prevent tab from moving focus
       }
     }
@@ -384,13 +468,21 @@
       activeKeyTimeout = null;
     }
 
-    // Show typing container and hide completion screen
+    // Show typing container and hide completion screen and stats dashboard
     const typingTextContainer = document.querySelector('.typing-text-container');
     if (typingTextContainer) {
       typingTextContainer.style.display = 'block';
     }
     if (completionScreen) {
       completionScreen.style.display = 'none';
+    }
+    if (statsDashboard) {
+      statsDashboard.style.display = 'none';
+    }
+
+    // Show keyboard again if it was enabled
+    if (keyboardContainer && keyboardEnabled) {
+      keyboardContainer.classList.add('visible');
     }
 
     // Show the restart button again
@@ -490,8 +582,118 @@ Generated: ${new Date().toLocaleString()}
     }
   }
 
+  // Parse stats from stats.txt file
+  function parseStatsText(statsText) {
+    const stats = {};
+    const lines = statsText.split('\n');
+
+    for (const line of lines) {
+      if (line.includes('Total Errors Made:')) {
+        const match = line.match(/Total Errors Made:\s*(\d+)/);
+        if (match) stats.totalErrors = parseInt(match[1], 10);
+      } else if (line.includes('Errors Left (Unfixed):')) {
+        const match = line.match(/Errors Left \(Unfixed\):\s*(\d+)/);
+        if (match) stats.errorsLeft = parseInt(match[1], 10);
+      } else if (line.includes('Total Time:')) {
+        const match = line.match(/Total Time:\s*([\d.]+)\s*seconds/);
+        if (match) stats.totalTime = parseFloat(match[1]);
+      } else if (line.includes('Accuracy:')) {
+        const match = line.match(/Accuracy:\s*([\d.]+)%/);
+        if (match) stats.accuracy = parseFloat(match[1]);
+      } else if (line.includes('Speed:')) {
+        const match = line.match(/Speed:\s*([\d.]+)\s*words per minute/);
+        if (match) stats.speed = parseFloat(match[1]);
+      }
+    }
+
+    return stats;
+  }
+
+  // Load and display stats dashboard
+  async function showStatsDashboard() {
+    // Hide typing container
+    const typingTextContainer = document.querySelector('.typing-text-container');
+    if (typingTextContainer) {
+      typingTextContainer.style.display = 'none';
+    }
+
+    // Hide the restart button when dashboard is shown
+    if (restartButton && restartButton.parentElement) {
+      restartButton.parentElement.style.display = 'none';
+    }
+
+    // Hide keyboard when dashboard is shown
+    if (keyboardContainer) {
+      keyboardContainer.classList.remove('visible');
+    }
+
+    // Hide completion screen if visible
+    if (completionScreen) {
+      completionScreen.style.display = 'none';
+    }
+
+    try {
+      const response = await fetch('./stats.txt');
+      if (!response.ok) {
+        console.error('Failed to load stats file');
+        // Fall back to simple completion screen
+        // Keyboard is already hidden above
+        if (completionScreen) {
+          completionScreen.style.display = 'flex';
+        }
+        return;
+      }
+
+      const statsText = await response.text();
+      const stats = parseStatsText(statsText);
+
+      // Update dashboard with stats
+      const speedEl = document.getElementById('stat-speed');
+      const accuracyEl = document.getElementById('stat-accuracy');
+      const timeEl = document.getElementById('stat-time');
+      const errorsEl = document.getElementById('stat-errors');
+      const errorsLeftEl = document.getElementById('stat-errors-left');
+
+      if (speedEl) speedEl.textContent = stats.speed ? stats.speed.toFixed(1) : '0';
+      if (accuracyEl) accuracyEl.textContent = stats.accuracy ? stats.accuracy.toFixed(1) + '%' : '0%';
+      if (timeEl) {
+        const timeValue = stats.totalTime || 0;
+        if (timeValue < 60) {
+          timeEl.textContent = timeValue.toFixed(1) + 's';
+        } else {
+          const minutes = Math.floor(timeValue / 60);
+          const seconds = (timeValue % 60).toFixed(1);
+          timeEl.textContent = `${minutes}m ${seconds}s`;
+        }
+      }
+      if (errorsEl) errorsEl.textContent = stats.totalErrors || 0;
+      if (errorsLeftEl) errorsLeftEl.textContent = stats.errorsLeft || 0;
+
+      // Show dashboard
+      if (statsDashboard) {
+        statsDashboard.style.display = 'flex';
+      }
+
+      if (hiddenInput) {
+        hiddenInput.blur();
+      }
+    } catch (error) {
+      console.error('Error loading stats:', error);
+      // Fall back to simple completion screen
+      // Keyboard is already hidden above
+      if (completionScreen) {
+        completionScreen.style.display = 'flex';
+      }
+    }
+  }
+
   function showCompletionScreen() {
     console.log('showCompletionScreen called');
+
+    // Hide stats dashboard if visible
+    if (statsDashboard) {
+      statsDashboard.style.display = 'none';
+    }
 
     if (!completionScreen) {
       console.error('Completion screen element not found!');
@@ -501,6 +703,11 @@ Generated: ${new Date().toLocaleString()}
     const typingTextContainer = document.querySelector('.typing-text-container');
     if (typingTextContainer) {
       typingTextContainer.style.display = 'none';
+    }
+
+    // Hide keyboard when completion screen is shown
+    if (keyboardContainer) {
+      keyboardContainer.classList.remove('visible');
     }
 
     // Hide the restart button when completion screen is shown
@@ -515,16 +722,28 @@ Generated: ${new Date().toLocaleString()}
 
     if (stats) {
       console.log('Calling saveStatistics...');
-      saveStatistics(stats);
+      saveStatistics(stats).then(() => {
+        // After saving, check if we should show stats dashboard
+        if (config.showStats === true) {
+          // Wait a bit for the file to be written, then show dashboard
+          setTimeout(() => {
+            showStatsDashboard();
+          }, 200);
+        } else {
+          // Show simple completion screen
+          completionScreen.style.display = 'flex';
+          if (hiddenInput) {
+            hiddenInput.blur();
+          }
+        }
+      });
     } else {
       console.log('No statistics to save (stats is null)');
-    }
-
+      // Show simple completion screen
     completionScreen.style.display = 'flex';
-    console.log('Completion screen displayed:', completionScreen.style.display);
-
     if (hiddenInput) {
       hiddenInput.blur();
+      }
     }
   }
 
@@ -535,8 +754,10 @@ Generated: ${new Date().toLocaleString()}
     textContainer = document.getElementById('typing-text');
     hiddenInput = document.getElementById('hidden-input');
     completionScreen = document.getElementById('completion-screen');
+    statsDashboard = document.getElementById('stats-dashboard');
     restartButton = document.getElementById('btn-restart');
     startOverButton = document.getElementById('btn-start-over');
+    statsStartOverButton = document.getElementById('btn-stats-start-over');
 
     if (!textContainer || !hiddenInput) {
       console.error('Required elements not found');
@@ -558,11 +779,17 @@ Generated: ${new Date().toLocaleString()}
       startOverButton.addEventListener('click', restart);
     }
 
+    if (statsStartOverButton) {
+      statsStartOverButton.addEventListener('click', restart);
+    }
+
     // Focus the input when clicking on the text container
     const typingTextContainer = document.querySelector('.typing-text-container');
     if (typingTextContainer) {
       typingTextContainer.addEventListener('click', () => {
-        if (hiddenInput && completionScreen && completionScreen.style.display !== 'flex') {
+        const isCompletionVisible = completionScreen && completionScreen.style.display === 'flex';
+        const isStatsVisible = statsDashboard && statsDashboard.style.display === 'flex';
+        if (hiddenInput && !isCompletionVisible && !isStatsVisible) {
           hiddenInput.focus();
         }
       });
@@ -573,7 +800,9 @@ Generated: ${new Date().toLocaleString()}
 
     // Focus the input after a short delay
     setTimeout(() => {
-      if (hiddenInput && completionScreen && completionScreen.style.display !== 'flex') {
+      const isCompletionVisible = completionScreen && completionScreen.style.display === 'flex';
+      const isStatsVisible = statsDashboard && statsDashboard.style.display === 'flex';
+      if (hiddenInput && !isCompletionVisible && !isStatsVisible) {
         hiddenInput.focus();
       }
     }, 100);

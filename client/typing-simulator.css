@@ -160,6 +160,98 @@
   margin: 0;
 }
 
+/* Stats Dashboard Styles */
+.bespoke .stats-dashboard {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--UI-Spacing-spacing-xl);
+  padding: var(--UI-Spacing-spacing-xxxl);
+  background: var(--Colors-Box-Background);
+  border-radius: var(--UI-Radius-radius-m);
+  border: 1px solid var(--Colors-Stroke-Default);
+  text-align: center;
+  z-index: 1000;
+  min-width: 600px;
+  max-width: 800px;
+  box-shadow: 0 3px 2px 0 var(--Colors-Shadow-Card);
+}
+
+.bespoke .stats-dashboard-header {
+  width: 100%;
+  margin-bottom: var(--UI-Spacing-spacing-lg);
+}
+
+.bespoke .stats-dashboard-header h2 {
+  font-size: var(--Fonts-Headlines-xl);
+  margin: 0 0 var(--UI-Spacing-spacing-xs) 0;
+  color: var(--Colors-Text-Body-Strongest);
+  font-family: var(--heading-family);
+  font-weight: 500;
+}
+
+.bespoke .stats-subtitle {
+  font-size: var(--Fonts-Body-Default-md);
+  color: var(--Colors-Text-Body-Medium);
+  margin: 0;
+}
+
+.bespoke .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: var(--UI-Spacing-spacing-xl);
+  width: 100%;
+  margin: var(--UI-Spacing-spacing-lg) 0;
+}
+
+.bespoke .stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--UI-Spacing-spacing-xl);
+  background: var(--Colors-Box-Background-Secondary);
+  border: 1px solid var(--Colors-Stroke-Default);
+  border-radius: var(--UI-Radius-radius-m);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bespoke .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px 0 var(--Colors-Shadow-Card);
+}
+
+.bespoke .stat-value-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--UI-Spacing-spacing-xs);
+}
+
+.bespoke .stat-value {
+  font-size: var(--Fonts-Headlines-md);
+  font-weight: 600;
+  color: var(--Colors-Primary-Default);
+  font-family: var(--heading-family);
+}
+
+.bespoke .stat-label {
+  font-size: var(--Fonts-Body-Default-sm);
+  color: var(--Colors-Text-Body-Medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bespoke .stats-dashboard-footer {
+  width: 100%;
+  margin-top: var(--UI-Spacing-spacing-lg);
+}
+
 /* Mini Keyboard Styles */
 .bespoke .keyboard-container {
   display: none;
@@ -239,4 +331,12 @@
   background: color-mix(in srgb, var(--Colors-Alert-Error-Default) 30%, transparent);
   border-color: var(--Colors-Alert-Error-Default);
   transform: scale(0.95);
+}
+
+.bespoke .keyboard-key.unavailable {
+  background: var(--Colors-Box-Background);
+  border-color: var(--Colors-Stroke-Light);
+  color: var(--Colors-Text-Body-Light);
+  opacity: 0.5;
+  cursor: not-allowed;
 }
