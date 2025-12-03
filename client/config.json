@@ -2,5 +2,6 @@
   "keyboard": true,
   "availableKeys": [],
   "showStats": true,
-  "realTimeStats": ["time", "chars"]
+  "realTimeStats": ["time", "chars"],
+  "keyTips": true
 }

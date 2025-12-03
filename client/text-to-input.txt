@@ -1,6 +1,1 @@
-testing text.
-with newlines!
-
-And special symbols: \ [ `.
-
-Reach the end to finish!
+Test text to input!

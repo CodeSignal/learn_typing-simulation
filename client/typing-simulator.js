@@ -11,7 +11,7 @@
   let statsStartOverButton = null;
   let keyboardContainer = null;
   let realtimeStatsContainer = null;
-  let config = { keyboard: true, availableKeys: [], showStats: false, realTimeStats: [] };
+  let config = { keyboard: true, availableKeys: [], showStats: false, realTimeStats: [], keyTips: false };
 
   // Normalized set of available keys (for fast lookup)
   let availableKeysSet = new Set();
@@ -28,6 +28,9 @@
   let keyboardEnabled = false;
   let activeKeyElement = null;
   let activeKeyTimeout = null;
+  let keyTipsEnabled = false;
+  let currentTipKeyElement = null;
+  let currentTipShiftElement = null; // Track which shift key is highlighted
 
   // Real-time stats update interval
   let realtimeStatsInterval = null;
@@ -136,8 +139,153 @@
     return keyboardContainer.querySelector(`[data-key="${normalizedChar}"]`);
   }
 
+  // Map shift symbols to their base keys
+  const shiftSymbolMap = {
+    '!': '1', '@': '2', '#': '3', '$': '4', '%': '5',
+    '^': '6', '&': '7', '*': '8', '(': '9', ')': '0',
+    '_': '-', '+': '=', '{': '[', '}': ']', '|': '\\',
+    ':': ';', '"': "'", '<': ',', '>': '.', '?': '/', '~': '`'
+  };
+
+  // Get the base key for a character (maps shift symbols to their base keys)
+  function getBaseKey(char) {
+    // If it's a shift symbol, return the base key
+    if (shiftSymbolMap[char]) {
+      return shiftSymbolMap[char];
+    }
+    // For uppercase letters, return lowercase
+    if (char >= 'A' && char <= 'Z') {
+      return char.toLowerCase();
+    }
+    // Otherwise return as-is
+    return char;
+  }
+
+  // Check if a character requires Shift to type
+  function requiresShift(char) {
+    // Check if it's an uppercase letter
+    if (char >= 'A' && char <= 'Z') {
+      return true;
+    }
+
+    // Check if it's a special symbol that requires Shift
+    if (shiftSymbolMap[char]) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Determine if a key is on the left side of the keyboard
+  // Returns true for left side, false for right side
+  // Based on standard QWERTY layout:
+  // Left: `, 1-5, tab, q-t, caps, a-g, shift, z-b
+  // Right: 6-0, -, =, y-p, [, ], \, h-l, ;, ', n-/, shift
+  function isKeyOnLeftSide(char) {
+    const normalizedChar = char.toLowerCase();
+
+    // Handle special keys
+    if (normalizedChar === 'tab' || normalizedChar === 'caps' || normalizedChar === 'shift') {
+      // These keys span or are on left side
+      return true;
+    }
+
+    // Number row: left side is `, 1-5
+    if (normalizedChar === '`' || (normalizedChar >= '1' && normalizedChar <= '5')) {
+      return true;
+    }
+
+    // Top letter row: left side is q-t
+    if (normalizedChar >= 'q' && normalizedChar <= 't') {
+      return true;
+    }
+
+    // Middle letter row: left side is a-g
+    if (normalizedChar >= 'a' && normalizedChar <= 'g') {
+      return true;
+    }
+
+    // Bottom letter row: left side is z-b
+    if (normalizedChar >= 'z' && normalizedChar <= 'b') {
+      return true;
+    }
+
+    // Everything else is on the right side
+    return false;
+  }
+
+  // Get shift key element (left or right)
+  function getShiftKeyElement(isLeft) {
+    if (!keyboardContainer) return null;
+
+    // Find shift key by data attribute
+    const shiftSide = isLeft ? 'left' : 'right';
+    return keyboardContainer.querySelector(`[data-key="shift"][data-shift-side="${shiftSide}"]`);
+  }
+
+  // Update the key tip highlight (shows which key to press next)
+  function updateKeyTip() {
+    // Only update if keyTips mode is enabled and keyboard is visible
+    if (!keyTipsEnabled || !keyboardEnabled || !keyboardContainer) {
+      return;
+    }
+
+    // Clear previous tip
+    if (currentTipKeyElement) {
+      currentTipKeyElement.classList.remove('key-tip');
+      currentTipKeyElement = null;
+    }
+
+    // Clear previous shift tip
+    if (currentTipShiftElement) {
+      currentTipShiftElement.classList.remove('key-tip');
+      currentTipShiftElement = null;
+    }
+
+    // Find the next character to type
+    const nextCharIndex = typedText.length;
+    if (nextCharIndex >= originalText.length) {
+      // All characters typed, no tip needed
+      return;
+    }
+
+    const nextChar = originalText[nextCharIndex];
+    if (!nextChar) {
+      return;
+    }
+
+    // Get the base key for highlighting (maps shift symbols to their base keys)
+    const baseKey = getBaseKey(nextChar);
+
+    // Get the key element for the base key
+    const keyElement = getKeyElement(baseKey);
+    if (keyElement) {
+      currentTipKeyElement = keyElement;
+      keyElement.classList.add('key-tip');
+    }
+
+    // Check if shift is needed and highlight appropriate shift key
+    if (requiresShift(nextChar)) {
+      // Determine which side of keyboard the key is on
+      const charForSideCheck = baseKey.toLowerCase();
+      const isLeftSide = isKeyOnLeftSide(charForSideCheck);
+
+      // Highlight opposite shift: left side keys use right shift, right side keys use left shift
+      const shiftElement = getShiftKeyElement(!isLeftSide);
+      if (shiftElement) {
+        currentTipShiftElement = shiftElement;
+        shiftElement.classList.add('key-tip');
+      }
+    }
+  }
+
   // Highlight a key on the keyboard
   function highlightKey(char, isError = false) {
+    // Skip regular highlighting if keyTips mode is enabled
+    if (keyTipsEnabled) {
+      return;
+    }
+
     // Don't highlight unavailable keys
     if (!isKeyAvailable(char)) {
       return;
@@ -179,6 +327,8 @@
     const keyboard = document.createElement('div');
     keyboard.className = 'keyboard';
 
+    let shiftKeyIndex = 0; // Track which shift key we're rendering (0 = left, 1 = right)
+
     keyboardLayout.forEach(row => {
       const rowElement = document.createElement('div');
       rowElement.className = 'keyboard-row';
@@ -188,6 +338,13 @@
         const normalizedKey = key.toLowerCase();
         keyElement.className = 'keyboard-key';
         keyElement.setAttribute('data-key', normalizedKey);
+
+        // Add data attribute to distinguish left vs right shift
+        if (key === 'shift') {
+          const shiftSide = shiftKeyIndex === 0 ? 'left' : 'right';
+          keyElement.setAttribute('data-shift-side', shiftSide);
+          shiftKeyIndex++;
+        }
 
         // Check if this key is available (use isKeyAvailable to ensure space, comma, dot are always available)
         const isAvailable = isKeyAvailable(key);
@@ -224,10 +381,15 @@
     if (!keyboardContainer) return;
 
     keyboardEnabled = config.keyboard === true;
+    keyTipsEnabled = config.keyTips === true; // Defaults to false if undefined or not set
 
     if (keyboardEnabled) {
       renderKeyboard();
       keyboardContainer.classList.add('visible');
+      // Update key tip after keyboard is rendered
+      if (keyTipsEnabled) {
+        updateKeyTip();
+      }
     } else {
       keyboardContainer.classList.remove('visible');
     }
@@ -330,6 +492,9 @@
     }
 
     textContainer.innerHTML = html;
+
+    // Update key tip if enabled
+    updateKeyTip();
   }
 
   function escapeHtml(text) {
@@ -415,6 +580,7 @@
 
     renderText();
     updateRealtimeStats();
+    // updateKeyTip is called in renderText, so no need to call it here
   }
 
   function handleKeyDown(e) {
@@ -527,6 +693,16 @@
     if (activeKeyTimeout) {
       clearTimeout(activeKeyTimeout);
       activeKeyTimeout = null;
+    }
+
+    // Clear key tip if enabled
+    if (currentTipKeyElement) {
+      currentTipKeyElement.classList.remove('key-tip');
+      currentTipKeyElement = null;
+    }
+    if (currentTipShiftElement) {
+      currentTipShiftElement.classList.remove('key-tip');
+      currentTipShiftElement = null;
     }
 
     // Show typing container and hide completion screen and stats dashboard
@@ -815,6 +991,16 @@ Generated: ${new Date().toLocaleString()}
       keyboardContainer.classList.remove('visible');
     }
 
+    // Clear key tip when dashboard is shown
+    if (currentTipKeyElement) {
+      currentTipKeyElement.classList.remove('key-tip');
+      currentTipKeyElement = null;
+    }
+    if (currentTipShiftElement) {
+      currentTipShiftElement.classList.remove('key-tip');
+      currentTipShiftElement = null;
+    }
+
     // Hide real-time stats when dashboard is shown
     if (realtimeStatsContainer) {
       realtimeStatsContainer.style.display = 'none';
@@ -907,6 +1093,16 @@ Generated: ${new Date().toLocaleString()}
     // Hide keyboard when completion screen is shown
     if (keyboardContainer) {
       keyboardContainer.classList.remove('visible');
+    }
+
+    // Clear key tip when completion screen is shown
+    if (currentTipKeyElement) {
+      currentTipKeyElement.classList.remove('key-tip');
+      currentTipKeyElement = null;
+    }
+    if (currentTipShiftElement) {
+      currentTipShiftElement.classList.remove('key-tip');
+      currentTipShiftElement = null;
     }
 
     // Hide real-time stats when completion screen is shown

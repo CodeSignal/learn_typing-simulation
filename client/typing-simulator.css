@@ -24,7 +24,7 @@
   position: relative;
   width: 100%;
   max-width: 900px;
-  margin: var(--UI-Spacing-spacing-xl) auto 0;
+  margin: var(--UI-Spacing-spacing-md) auto 0;
   flex: 0 0 auto; /* Don't grow, don't shrink */
   min-height: 0; /* Allow flexbox to shrink */
 }
@@ -323,9 +323,9 @@
 .bespoke .keyboard-container {
   display: none;
   width: 100%;
-  padding: var(--UI-Spacing-spacing-lg);
+  padding: var(--UI-Spacing-spacing-md) var(--UI-Spacing-spacing-lg) var(--UI-Spacing-spacing-sm) var(--UI-Spacing-spacing-lg);
   background: transparent;
-  overflow: hidden; /* Prevent keyboard from causing scroll */
+  overflow: visible; /* Allow key tip glow to be visible */
 }
 
 .bespoke .keyboard-container.visible {
@@ -413,6 +413,24 @@
   color: var(--Colors-Text-Body-Light);
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.bespoke .keyboard-key.key-tip {
+  background: color-mix(in srgb, var(--Colors-Primary-Default) 40%, transparent);
+  border-color: var(--Colors-Primary-Default);
+  animation: keyTipPulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 8px 2px color-mix(in srgb, var(--Colors-Primary-Default) 50%, transparent);
+}
+
+@keyframes keyTipPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 8px 2px color-mix(in srgb, var(--Colors-Primary-Default) 50%, transparent);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 12px 4px color-mix(in srgb, var(--Colors-Primary-Default) 70%, transparent);
+  }
 }
 
 /* Responsive Design */
